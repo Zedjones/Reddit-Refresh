@@ -10,7 +10,7 @@ def main():
     deviceinfo = requests.get('https://api.pushbullet.com/v2/devices', auth=(token, ''))
     device_dict = get_devices(json.loads(deviceinfo.text))
     choice_list = create_choice_list(device_dict)
-    get_devices_to_push(choice_list)
+    devices_to_push = get_devices_to_push(choice_list)
 
 
 def get_devices(deviceout):
@@ -27,12 +27,16 @@ def create_choice_list(device_dict):
     return choice_list
 
 def get_devices_to_push(choice_list):
+    device_list = []
     print("\nList of devices available to push to: ")
     for i in range(0, len(choice_list)):
         print(str(i) + ":",  choice_list[i][1])
     devices = input("Device numbers you'd like to push to (separate with commas): ")
-    numb_list = devices = devices.strip().split(",")
-    print(numb_list)
+    numb_list  = devices.strip().split(",")
+    for i in numb_list:
+        device_list.append(choice_list[int(i)])
+    print(device_list)
+    return device_list
 
 
 main()
