@@ -83,7 +83,7 @@ def send_a_push(devices_to_push, token):
     for device in devices_to_push:
         print(device)
         url = "https://api.pushbullet.com/v2/pushes"
-        data = {"body": "This is a test.", "title": "Test", "type": "note"}
+        data = {"body": "This is a test.", "title": "Test", "type": "note", "device_iden": device}
         headers = {'Content-Type': 'application/json', 'Access-Token': token}
         data_json = json.dumps(data)
         payload = {"json_payload": data_json}
