@@ -18,6 +18,8 @@ def main():
         token = input("Enter your Pushbullet access token " + \
                 "(found on the Account Settings page): ")
         config.write("token=" + token + "\n")
+        config.close()
+        config = open(str(Path.home())+"/.config/reddit-refresh/config", 'r+')
     else:
         config.seek(0)
         token = config.readline().split('=')[1].strip()
@@ -29,7 +31,7 @@ def main():
     header = 'Access-Token: ' + token
     accinfo = requests.get('https://api.pushbullet.com/v2/users/me', auth=(token, ''))
     out = json.loads(accinfo.text)
-    if(config.readline() == ''):
+    if(config.readline().strip()):
         deviceinfo = requests.get('https://api.pushbullet.com/v2/devices', auth=(token, ''))
         device_dict = get_devices(json.loads(deviceinfo.text))
         choice_list = create_choice_list(device_dict)
