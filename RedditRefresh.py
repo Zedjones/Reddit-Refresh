@@ -52,7 +52,7 @@ def main():
             device = device.split(",")
             devices_to_push[device[0]] = device[1].strip()
             device = config.readline()
-        print(devices_to_push, token)
+    send_a_push(devices_to_push, token)
 
 def get_devices(deviceout):
     device_dict = {}
@@ -81,9 +81,12 @@ def get_devices_to_push(choice_list):
 
 def send_a_push(devices_to_push, token):
     for device in devices_to_push:
+        print(device)
+        url = "https://api.pushbullet.com/v2/pushes"
         data = {"body": "This is a test.", "title": "Test", "type": "note"}
+        headers = {'Content-Type': 'application/json', 'Access-Token': token}
         data_json = json.dumps(data)
-        payload = {"json_payload": data_json, "Access-Token": token}
-        requests.get("https://api.pushbullet.com/v2/devices", data=payload)
+        payload = {"json_payload": data_json}
+        requests.post(url, data=data_json, headers=headers)
 
 main()
