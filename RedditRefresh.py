@@ -6,20 +6,28 @@ import os
 from pathlib import Path
 
 def main():
+    #assume that this is the first run
     firstrun = True
+    #make the directory to hold the config if it doesn't exist
     if not os.path.exists(str(Path.home())+"/.config/reddit-refresh"):
         os.makedirs(str(Path.home())+"/.config/reddit-refresh")
+    #open the config file for reading and writing if it exists, set firstRun to false
     if os.path.isfile(str(Path.home())+"/.config/reddit-refresh/config"):
         config = open(str(Path.home())+"/.config/reddit-refresh/config", 'r+')
         firstrun = False
+    #otherwise,  open a new config file for writing
     else:
         config = open(str(Path.home())+"/.config/reddit-refresh/config", 'w')
+    #if it's the firstrun or the config file is malformed
     if(firstrun or "token" not in config.readline()):
+        #get access token from user and write it to the first line
         token = input("Enter your Pushbullet access token " + \
                 "(found on the Account Settings page): ")
         config.write("token=" + token + "\n")
+        #close and repon the file for reading and writing
         config.close()
         config = open(str(Path.home())+"/.config/reddit-refresh/config", 'r+')
+    #otherwise, get the token and do some formatting
     else:
         config.seek(0)
         token = config.readline().split('=')[1].strip()
@@ -28,13 +36,17 @@ def main():
             config.write("\n")
         config.seek(0)
         config.readline()
-    header = 'Access-Token: ' + token
+    #get the account info from the Pushbullet API
     accinfo = requests.get('https://api.pushbullet.com/v2/users/me', auth=(token, ''))
+    #get the text from the json object
     out = json.loads(accinfo.text)
+    #if line with token is the only line in the file
     if('token' in config.readline().strip()):
+        #get device info and create a device dictionary and choice list
         deviceinfo = requests.get('https://api.pushbullet.com/v2/devices', auth=(token, ''))
         device_dict = get_devices(json.loads(deviceinfo.text))
         choice_list = create_choice_list(device_dict)
+        #get the devices to push using the choice list
         devices_to_push = get_devices_to_push(choice_list)
         for i in range(len(devices_to_push)):
             if(i == len(devices_to_push)):
