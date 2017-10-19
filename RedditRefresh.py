@@ -42,12 +42,14 @@ def main():
     out = json.loads(accinfo.text)
     #if line with token is the only line in the file
     if('token' in config.readline().strip()):
-        #get device info and create a device dictionary and choice list
+        #get device info and creates a device dictionary with this info
         deviceinfo = requests.get('https://api.pushbullet.com/v2/devices', auth=(token, ''))
         device_dict = get_devices(json.loads(deviceinfo.text))
+        #get a list of tuple objects where each tuple is a key-value pair
         choice_list = create_choice_list(device_dict)
         #get the devices to push using the choice list
         devices_to_push = get_devices_to_push(choice_list)
+        #write each device to the config file, using a standard format
         for i in range(len(devices_to_push)):
             if(i == len(devices_to_push)):
                 config.write(devices_to_push[i][0] + ",")
@@ -55,17 +57,27 @@ def main():
             else:
                 config.write(devices_to_push[i][0] + ",")
                 config.write(devices_to_push[i][1] + "\n")
+    #if line with token is not the only line in file 
     else:
+        #create empty dictionary
         devices_to_push = {}
+        #go to beginning of file and advance on line
         config.seek(0)
         config.readline()
+        #read in each of the devices
         device = config.readline()
         while(device != "" and device != "\n"):
             device = device.split(",")
             devices_to_push[device[0]] = device[1].strip()
             device = config.readline()
+    #send a test push to all selected devices
     send_a_push(devices_to_push, token)
 
+'''
+Create a dictionary of devices where the nickname is mapped to the id
+@param deviceout - json device request to get device info from 
+@return device_dict - dictionary mapping nickname to the id of each device
+'''
 def get_devices(deviceout):
     device_dict = {}
     for i in deviceout["devices"]:
@@ -73,12 +85,22 @@ def get_devices(deviceout):
            device_dict[i["iden"]] = i["nickname"]
     return device_dict
 
+'''
+Takes in the device dict from get_devices() and outputs a list of device choices
+@param device_dict - dictionary mapping nickname to the id of each device
+@return choice_list - a lists of device choice tuples created from device_dict
+'''
 def create_choice_list(device_dict):
     choice_list = []
     for i in device_dict:
         choice_list.append((i, device_dict[i]))
     return choice_list
-
+'''
+Takes in the choice list, prints the list in a readable format, and prompts 
+the user to input which devices they want to push to
+@param choice_list - list of device tuple objects to use as options
+@return device_list - list of device
+'''
 def get_devices_to_push(choice_list):
     device_list = []
     print("\nList of devices available to push to: ")
@@ -88,14 +110,14 @@ def get_devices_to_push(choice_list):
     numb_list  = devices.strip().split(",")
     for i in numb_list:
         device_list.append(choice_list[int(i)])
-    print(device_list)
     return device_list
 
 def send_a_push(devices_to_push, token):
     for device in devices_to_push:
         print(device)
         url = "https://api.pushbullet.com/v2/pushes"
-        data = {"body": "This is a test.", "title": "Test", "type": "note", "device_iden": device}
+        data = {"body": "This is a test.", "title": "Test", "type": \
+                "note", "device_iden": device}
         headers = {'Content-Type': 'application/json', 'Access-Token': token}
         data_json = json.dumps(data)
         payload = {"json_payload": data_json}
