@@ -8,4 +8,4 @@ r = response.urlopen('GET', url)
 soup = BeautifulSoup(r.data.decode("utf-8"))
 mydivs = soup.findAll("div", {"class": "search-result-group"})
 for div in mydivs:
-    
+    print(div)
