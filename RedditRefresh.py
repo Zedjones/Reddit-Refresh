@@ -72,6 +72,8 @@ def main():
             device = config.readline()
     #send a test push to all selected devices
     send_a_push(devices_to_push, token)
+    #close file as standard practice
+    config.close()
 
 '''
 Create a dictionary of devices where the nickname is mapped to the id
