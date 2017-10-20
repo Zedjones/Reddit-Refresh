@@ -1,14 +1,11 @@
-from html.parser import HTMLParser
+from bs4 import BeautifulSoup
 import urllib3
 
-class SubredditParser(HTMLParser):
-    def handle_starttag(self, tag, attrs):
-        if("search-result-group" in tag):
-            print(tag)
-
-parser = SubredditParser()
 url = "https://www.reddit.com/r/mechmarket/search?q=Planck&sort=new&restrict_sr=on&t=all"
 response = urllib3.connection_from_url('https://www.reddit.com/r/mechmarket/\
         search?q=Planck&sort=new&restrict_sr=on&t=all')
 r = response.urlopen('GET', url)
-parser.feed(r.data.decode('utf-8'))
+soup = BeautifulSoup(r.data.decode("utf-8"))
+mydivs = soup.findAll("div", {"class": "search-result-group"})
+for div in mydivs:
+    
