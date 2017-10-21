@@ -6,6 +6,9 @@ response = urllib3.connection_from_url('https://www.reddit.com/r/mechmarket/\
         search?q=Planck&sort=new&restrict_sr=on&t=all')
 r = response.urlopen('GET', url)
 soup = BeautifulSoup(r.data.decode("utf-8"))
-mydivs = soup.findAll("div", {"class": "contents"})
-for div in mydivs:
-    case = BeautifulSoup(str(div.contents))
+contents = soup.findAll("div", {"class": "contents"})
+soup = BeautifulSoup(str(contents))
+headers = soup.findAll("header", {"class": "search-result-header"})
+for header in headers:
+
+
