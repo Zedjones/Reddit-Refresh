@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import urllib3
+from collections import OrderedDict
 
 '''
 Scans a subreddit for a search with a certain sorting method and 
@@ -12,7 +13,9 @@ optionaally appends the flair to the beginning of the title
 titles
 '''
 def get_results(sb, search, sort="new", flair=False):
-    resultdict = {}
+    #have to use OrderedDict because Python dicts before 3.7
+    #do not keep order that keys are added
+    resultdict = OrderedDict()
     #TODO make the connection secure so I don't have to do this
     urllib3.disable_warnings()
     sorts = ["new", "top", "relevance"] #three sorting options for Reddit search
@@ -36,7 +39,7 @@ search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
     contents = soup.find("div", {"class": "contents"})
     #some python versions don't iterate dictonaries in order of 
     #when each item was added, so we must keep track
-    index = 0
+    #index = 0
     #for each entry in the search
     for header in contents.children:
         #specific parsing to make sure that this works for subreddits
@@ -53,12 +56,14 @@ search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
         link = soup.find('a', href=True)
         #prepend the flair to the title if requested or don't otherwise
         if flair and flairt != None:
-            resultdict[link['href']] = (flairt + " " + link.text, index)
+            resultdict[link['href']] = flairt + " " + link.text
         else:
-            resultdict[link['href']] = (link.text, index)
-        index += 1
+            resultdict[link['href']] = link.text
+        #index += 1
     #allows us to print out each entry in order
-    for key in sorted(resultdict, key=lambda k: resultdict[k][1]):
+    # for key in sorted(resultdict, key=lambda k: resultdict[k][1]):
+       # print("%s: %s" % (key, resultdict[key]))
+    for key in resultdict:
         print("%s: %s" % (key, resultdict[key]))
     return resultdict
 
