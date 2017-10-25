@@ -28,13 +28,15 @@ def get_results(sb, search, sort="new", flair=False):
     #construct the URL
     url = "https://www.reddit.com%s/\
 search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
-    print(url)
     #get HTML to parse and initialize parser
     response = urllib3.connection_from_url(url)
     r = response.urlopen('GET', url)
     soup = BeautifulSoup(r.data.decode("utf-8"), "html.parser")
     #find contents class
     contents = soup.find("div", {"class": "contents"})
+    #some python versions don't iterate dictonaries in order of 
+    #when each item was added, so we must keep track
+    index = 0
     #for each entry in the search
     for header in contents.children:
         #specific parsing to make sure that this works for subreddits
@@ -51,10 +53,13 @@ search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
         link = soup.find('a', href=True)
         #prepend the flair to the title if requested or don't otherwise
         if flair and flairt != None:
-            resultdict[link['href']] = flairt + " " + link.text
+            resultdict[link['href']] = (flairt + " " + link.text, index)
         else:
-            resultdict[link['href']] = link.text
-    print(resultdict)
+            resultdict[link['href']] = (link.text, index)
+        index += 1
+    #allows us to print out each entry in order
+    for key in sorted(resultdict, key=lambda k: resultdict[k][1]):
+        print("%s: %s" % (key, resultdict[key]))
     return resultdict
 
 #test run
