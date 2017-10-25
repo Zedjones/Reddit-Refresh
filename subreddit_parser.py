@@ -19,12 +19,16 @@ def get_results(sb, search, sort="new", flair=False):
     #properly format this for url construction
     if "/r/" not in sb:
         sb = "/r/" + sb
+    #can't have spaces in URL
+    if " " in search:
+        search = search.replace(" ", "+")
     #default to new sorting if invalid sort is provided
     if sort.lower() not in sorts:
         sort = "new"
     #construct the URL
     url = "https://www.reddit.com%s/\
 search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
+    print(url)
     #get HTML to parse and initialize parser
     response = urllib3.connection_from_url(url)
     r = response.urlopen('GET', url)
@@ -41,11 +45,12 @@ search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
         #get the flair if the user requested it
         if flair:
             flairt = soup.find("span", {"class": "linkflairlabel"})
-            flairt = flairt.text
+            if flairt != None:
+                flairt = flairt.text
         #get the part of the entry that contains the link and title
         link = soup.find('a', href=True)
         #prepend the flair to the title if requested or don't otherwise
-        if flair:
+        if flair and flairt != None:
             resultdict[link['href']] = flairt + " " + link.text
         else:
             resultdict[link['href']] = link.text
