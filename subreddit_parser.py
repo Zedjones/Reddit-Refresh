@@ -20,8 +20,6 @@ def get_results(sb, search, sort="new", flair=False):
     #have to use OrderedDict because Python dicts before 3.6
     #do not keep order that keys are added
     resultdict = OrderedDict()
-    #TODO make the connection secure so I don't have to do this
-    urllib3.disable_warnings()
     sorts = ["new", "top", "relevance"] #three sorting options for Reddit search
     #properly format this for url construction
     if "/r/" not in sb:
@@ -70,6 +68,9 @@ search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
         print("%s: %s" % (key, resultdict[key]))
     return resultdict
 
+'''
+Print a standard usage message when using the parser by itself
+'''
 def usage_message():
     std_usage = "subreddit_parser [-f] [-s subreddit] [-m sort method] \
 [-t search term]"
@@ -78,12 +79,13 @@ def usage_message():
     print("Option\t\tDefault\t\tExample\t\t\t\tDescription")
     print("'-f'\t\tFalse\t\t-f\t\t\t\tAppend flair to entry title")
     print("'-t'\t\tNone\t\t-t Planck\t\t\tTerm to search for")
-    print("'-s'\t\tNone\t\t-s smechmarket\t\t\tSubreddit to search for term")
+    print("'-s'\t\tNone\t\t-s mechmarket\t\t\tSubreddit to search for term")
     print("'-m'\t\tnew\t\t-m  new, -m relevance, -m top\tMethod to use for sorting results")
+    print("'-h'\t\tN/A\t\t-h\t\t\t\tPrints this usage message")
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "fs:t:m:", ["help", "output="])
+        opts, args = getopt.getopt(sys.argv[1:], "hfs:t:m:", ["help", "output="])
     except getopt.GetoptError as err:
         print(err)
         usage_message()
@@ -101,6 +103,9 @@ def main():
             sort = arg
         elif opt == "-f":
             flair = True
+        elif opt == "-h":
+            usage_message()
+            sys.exit(1)
         else:
             assert False, "unrecognized option"
     fail = False
