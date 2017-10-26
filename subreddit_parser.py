@@ -3,6 +3,7 @@
 from bs4 import BeautifulSoup
 import urllib3, getopt, sys
 from collections import OrderedDict
+import time
 
 
 '''
@@ -40,6 +41,9 @@ search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
     soup = BeautifulSoup(r.data.decode("utf-8"), "html.parser")
     #find contents class
     contents = soup.find("div", {"class": "contents"})
+    if(contents == None):
+        print("Invalid subreddit entered")
+        sys.exit(2)
     #some python versions don't iterate dictonaries in order of 
     #when each item was added, so we must keep track
     #for each entry in the search
