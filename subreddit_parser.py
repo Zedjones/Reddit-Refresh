@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from bs4 import BeautifulSoup
 import urllib3, getopt, sys
 from collections import OrderedDict
@@ -14,7 +16,7 @@ optionaally appends the flair to the beginning of the title
 titles
 '''
 def get_results(sb, search, sort="new", flair=False):
-    #have to use OrderedDict because Python dicts before 3.7
+    #have to use OrderedDict because Python dicts before 3.6
     #do not keep order that keys are added
     resultdict = OrderedDict()
     #TODO make the connection secure so I don't have to do this
@@ -40,7 +42,6 @@ search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
     contents = soup.find("div", {"class": "contents"})
     #some python versions don't iterate dictonaries in order of 
     #when each item was added, so we must keep track
-    #index = 0
     #for each entry in the search
     for header in contents.children:
         #specific parsing to make sure that this works for subreddits
@@ -60,20 +61,28 @@ search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
             resultdict[link['href']] = flairt + " " + link.text
         else:
             resultdict[link['href']] = link.text
-        #index += 1
     #allows us to print out each entry in order
-    # for key in sorted(resultdict, key=lambda k: resultdict[k][1]):
-       # print("%s: %s" % (key, resultdict[key]))
     for key in resultdict:
         print("%s: %s" % (key, resultdict[key]))
     return resultdict
+
+def usage_message():
+    std_usage = "subreddit_parser [-f] [-s subreddit] [-m sort method] \
+[-t search term]"
+    print("usage: ")
+    print(std_usage)
+    print("Option\t\tDefault\t\tExample\t\t\t\tDescription")
+    print("'-f'\t\tFalse\t\t-f\t\t\t\tAppend flair to entry title")
+    print("'-t'\t\tNone\t\t-t Planck\t\t\tTerm to search for")
+    print("'-s'\t\tNone\t\t-s smechmarket\t\t\tSubreddit to search for term")
+    print("'-m'\t\tnew\t\t-m  new, -m relevance, -m top\tMethod to use for sorting results")
 
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "fs:t:m:", ["help", "output="])
     except getopt.GetoptError as err:
         print(err)
-        usage()
+        usage_message()
         sys.exit(2)
     sort = "new"
     sb = ""
@@ -90,6 +99,16 @@ def main():
             flair = True
         else:
             assert False, "unrecognized option"
+    fail = False
+    if sb == "":
+        fail = True
+        print("Missing option for subreddit: -s")
+    if search == "":
+        fail = True
+        print("Missing option for search term: -t")
+    if fail:
+        usage_message()
+        sys.exit(2)
     get_results(sb, search, sort, flair)
 
 if __name__ == "__main__":
