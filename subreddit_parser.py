@@ -31,8 +31,8 @@ def get_results(sb, search, sort="new", flair=False):
     if sort.lower() not in sorts:
         sort = "new"
     #construct the URL
-    url = "https://www.reddit.com%s/\
-search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
+    url = "https://www.reddit.com%s/" % (sb) + \
+    "search?q=%s&sort=%s&restrict_sr=on&t=all" % (search, sort.lower())
     #get HTML to parse and initialize parser
     response = urllib3.connection_from_url(url)
     r = response.urlopen('GET', url)
@@ -80,7 +80,8 @@ def usage_message():
     print("'-f'\t\tFalse\t\t-f\t\t\t\tAppend flair to entry title")
     print("'-t'\t\tNone\t\t-t Planck\t\t\tTerm to search for")
     print("'-s'\t\tNone\t\t-s mechmarket\t\t\tSubreddit to search for term")
-    print("'-m'\t\tnew\t\t-m  new, -m relevance, -m top\tMethod to use for sorting results")
+    print("'-m'\t\tnew\t\t-m  new, -m relevance, " + \
+    "-m top\tMethod to use for sorting results")
     print("'-h'\t\tN/A\t\t-h\t\t\t\tPrints this usage message")
 
 def main():
