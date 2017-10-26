@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
-import urllib3
+import urllib3, getopt, sys
 from collections import OrderedDict
+
 
 '''
 Scans a subreddit for a search with a certain sorting method and 
@@ -67,5 +68,29 @@ search?q=%s&sort=%s&restrict_sr=on&t=all" % (sb, search, sort.lower())
         print("%s: %s" % (key, resultdict[key]))
     return resultdict
 
-#test run
-get_results("mechmarket", "Planck", "new")
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "fs:t:m:", ["help", "output="])
+    except getopt.GetoptError as err:
+        print(err)
+        usage()
+        sys.exit(2)
+    sort = "new"
+    sb = ""
+    search = ""
+    flair = False
+    for opt, arg in opts:
+        if opt == "-s":
+            sb = arg
+        elif opt == "-t":
+            search = arg
+        elif opt == "-m":
+            sort = arg
+        elif opt == "-f":
+            flair = True
+        else:
+            assert False, "unrecognized option"
+    get_results(sb, search, sort, flair)
+
+if __name__ == "__main__":
+    main()
