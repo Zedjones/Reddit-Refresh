@@ -64,8 +64,9 @@ def get_results(sb, search, sort="new", flair=False):
         else:
             resultdict[link['href']] = link.text
     #allows us to print out each entry in order
-    for key in resultdict:
-        print("%s: %s" % (key, resultdict[key]))
+    if __name__ == "__main__":
+        for key in resultdict:
+            print("%s: %s" % (key, resultdict[key]))
     return resultdict
 
 '''

@@ -4,6 +4,7 @@ import json
 import requests
 import os
 from pathlib import Path
+from subreddit_parser import get_results
 
 def main():
     #assume that this is the first run
@@ -71,8 +72,11 @@ def main():
             device = device.split(",")
             devices_to_push[device[0]] = device[1].strip()
             device = config.readline()
-    #send a test push to all selected devices
-    send_a_push(devices_to_push, token)
+    search_results = get_results("mechmarket", "Planck")
+    for key in search_results:
+        send_a_push_link(devices_to_push, token, \
+                key, search_results[key])
+        break
     #close file as standard practice
     config.close()
 
@@ -115,12 +119,22 @@ def get_devices_to_push(choice_list):
         device_list.append(choice_list[int(i)])
     return device_list
 
-def send_a_push(devices_to_push, token):
+def send_a_push_test(devices_to_push, token):
     for device in devices_to_push:
         print(device)
         url = "https://api.pushbullet.com/v2/pushes"
         data = {"body": "This is a test.", "title": "Test", "type": \
                 "note", "device_iden": device}
+        headers = {'Content-Type': 'application/json', 'Access-Token': token}
+        data_json = json.dumps(data)
+        payload = {"json_payload": data_json}
+        requests.post(url, data=data_json, headers=headers)
+
+def send_a_push_link(devices_to_push, token, link, title):
+    for device in devices_to_push:
+        url = "https://api.pushbullet.com/v2/pushes"
+        data = {"title": title, "url": link, "type": "link", \
+                "device_iden": device}
         headers = {'Content-Type': 'application/json', 'Access-Token': token}
         data_json = json.dumps(data)
         payload = {"json_payload": data_json}
