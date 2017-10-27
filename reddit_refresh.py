@@ -20,6 +20,7 @@ def main():
         config = open(str(Path.home())+"/.config/reddit-refresh/config", 'w')
     #if it's the firstrun or the config file is malformed
     if(firstrun or "token" not in config.readline()):
+        secondline = config.tell()
         #get access token from user and write it to the first line
         token = input("Enter your Pushbullet access token " + \
                 "(found on the Account Settings page): ")
@@ -29,13 +30,14 @@ def main():
         config = open(str(Path.home())+"/.config/reddit-refresh/config", 'r+')
     #otherwise, get the token and do some formatting
     else:
+        #get location of second line of the file for later use
+        secondline = config.tell()
         config.seek(0)
         token = config.readline().split('=')[1].strip()
         tmp = config.readline()
         if(tmp == "" or tmp == "\n"):
             config.write("\n")
-        config.seek(0)
-        config.readline()
+        config.seek(secondline)
     #get the account info from the Pushbullet API
     accinfo = requests.get('https://api.pushbullet.com/v2/users/me', auth=(token, ''))
     #get the text from the json object
@@ -61,9 +63,8 @@ def main():
     else:
         #create empty dictionary
         devices_to_push = {}
-        #go to beginning of file and advance on line
-        config.seek(0)
-        config.readline()
+        #go to second line of the file 
+        config.seek(secondline)
         #read in each of the devices
         device = config.readline()
         while(device != "" and device != "\n"):
