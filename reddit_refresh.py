@@ -73,12 +73,36 @@ def main():
             devices_to_push[device[0]] = device[1].strip()
             device = config.readline()
     search_results = get_results("mechmarket", "Planck")
-    for key in search_results:
-        send_a_push_link(devices_to_push, token, \
-                key, search_results[key])
-        break
+    previous_results = []
+    if os.path.isfile(str(Path.home())+"/.config/reddit-refresh/visited_sites.txt"):
+        seen = open(str(Path.home())+"/.config/reddit-refresh/visited_sites.txt", 'r+')
+        for line in seen:
+            previous_results.append(line.strip())
+    else:
+        seen = open(str(Path.home())+"/.config/reddit-refresh/visited_sites.txt", 'w')
+        for key in search_results:
+            seen.write(key + "\n")
+    noMatches = True
+    if(len(previous_results) > 0):
+        for key in search_results:
+            if key not in previous_results:
+                send_a_push_link(devices_to_push, token, \
+                        key, search_results[key])
+                seen.write(key + "\n")
+            else:
+                noMatches = False
+        if noMatches:
+            seen.truncate(0)
+            for key in search_results:
+                seen.write(key + "\n")
+    else:
+        for key in search_results:
+            send_a_push_link(devices_to_push, token, \
+                    key, search_results[key])
+            break
     #close file as standard practice
     config.close()
+    seen.close()
 
 '''
 Create a dictionary of devices where the nickname is mapped to the id
