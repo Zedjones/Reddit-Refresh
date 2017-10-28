@@ -72,7 +72,7 @@ def main():
             device = device.split(",")
             devices_to_push[device[0]] = device[1].strip()
             device = config.readline()
-    search_results = get_results("mechmarket", "Planck")
+    search_results = get_results("me_irl", "me irl")
     previous_results = []
     if os.path.isfile(str(Path.home())+"/.config/reddit-refresh/visited_sites.txt"):
         seen = open(str(Path.home())+"/.config/reddit-refresh/visited_sites.txt", 'r+')
@@ -82,6 +82,8 @@ def main():
         seen = open(str(Path.home())+"/.config/reddit-refresh/visited_sites.txt", 'w')
         for key in search_results:
             seen.write(key + "\n")
+        seen.close()
+        seen = open(str(Path.home())+"/.config/reddit-refresh/visited_sites.txt", 'r+')
     noMatches = True
     if(len(previous_results) > 0):
         for key in search_results:
@@ -92,7 +94,8 @@ def main():
             else:
                 noMatches = False
         if noMatches:
-            seen.truncate(0)
+            seen.seek(0)
+            seen.truncate()
             for key in search_results:
                 seen.write(key + "\n")
     else:
