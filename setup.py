@@ -9,6 +9,7 @@ setup(name='reddit-refresh',
       license='GPL',
       packages=[],
       install_requires=[
-          'bs4',
+          'bs4', 'urllib3', 'json', 'os', 'pathlib', 'time', 'configparser', 
+          'sys', 'getopt', 'collections'
       ],
       zip_safe=False)
