@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from subreddit_parser import get_results
 import configparser
+import time
 from reddit_refresh_utils import *
 
 def main():
@@ -81,57 +82,69 @@ def main():
             search.append(entry)
             search.append(config['Searches'][entry])
             searches.append(search)
-    for search in searches:
-        search_results = get_results(search[0], search[1])
-        #create list to hold the previous results
-        previous_results = []
-        #if visited_sites is a file, open it for reading and writing
-        if os.path.isfile(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
-            % (search[0], search[1] + "_visited_sites.txt")):
-            seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
-                % (search[0], search[1]) + "_visited_sites.txt", 'r+')
-            #for each url in the file
-            for line in seen:
-                #add it to the list
-                previous_results.append(line.strip())
-        #if it is not a file, create the file and open it for writing
-        else:
-            seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
-                % (search[0], search[1]) + "_visited_sites.txt", 'w')
-            #write each url to the file, close it, and reopen it for r+w
-            for key in search_results:
-                seen.write(key + "\n")
-            seen.close()
-            seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
-                % (search[0], search[1]) + "_visited_sites.txt", 'r+')
-        noMatches = True
-        #if there were any previous results
-        if(len(previous_results) > 0):
-            #only send a push if a result hasn't been seen before, and then 
-            #write the url to the file
-            for key in search_results:
-                if key not in previous_results:
-                    send_a_push_link(devices_to_push, token, \
-                            key, search_results[key])
-                    seen.write(key + "\n")
-                else:
-                    noMatches = False
-            #if we haven't seen any of these urls before, we can simply erase
-            #the  file and start over
-            if noMatches:
-                seen.seek(0)
-                seen.truncate()
+    if('Program Config' not in config):
+        minutes = input("How often should the program check for new" \
+               + " results? (in minutes): ")
+        config['Program Config'] = {}
+        config['Program Config']['refresh interval'] = minutes
+    else:
+        minutes = config['Program Config']['refresh interval']
+    print("CTRL-C to exit program and stop checking results")
+    while(1):
+        print("checking results")
+        for search in searches:
+            search_results = get_results(search[0], search[1])
+            #create list to hold the previous results
+            previous_results = []
+            #if visited_sites is a file, open it for reading and writing
+            if os.path.isfile(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                % (search[0], search[1] + "_visited_sites.txt")):
+                seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                    % (search[0], search[1]) + "_visited_sites.txt", 'r+')
+                #for each url in the file
+                for line in seen:
+                    #add it to the list
+                    previous_results.append(line.strip())
+            #if it is not a file, create the file and open it for writing
+            else:
+                seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                    % (search[0], search[1]) + "_visited_sites.txt", 'w')
+                #write each url to the file, close it, and reopen it for r+w
                 for key in search_results:
                     seen.write(key + "\n")
-        #if there were no previous results, just send the first result
-        else:
-            for key in search_results:
-                send_a_push_link(devices_to_push, token, \
-                        key, search_results[key])
-                break
-    #close file as standard practice, and write config to file
-    config.write(configf)
-    seen.close()
-    configf.close()
+                seen.close()
+                seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                    % (search[0], search[1]) + "_visited_sites.txt", 'r+')
+            noMatches = True
+            #if there were any previous results
+            if(len(previous_results) > 0):
+                #only send a push if a result hasn't been seen before, and then 
+                #write the url to the file
+                for key in search_results:
+                    if key not in previous_results:
+                        send_a_push_link(devices_to_push, token, \
+                                key, search_results[key])
+                        seen.write(key + "\n")
+                    else:
+                        noMatches = False
+                #if we haven't seen any of these urls before, we can simply erase
+                #the  file and start over
+                if noMatches:
+                    seen.seek(0)
+                    seen.truncate()
+                    for key in search_results:
+                        seen.write(key + "\n")
+            #if there were no previous results, just send the first result
+            else:
+                for key in search_results:
+                    send_a_push_link(devices_to_push, token, \
+                            key, search_results[key])
+                    break
+        time.sleep(int(minutes)*60)
+        #close file as standard practice, and write config to file
+        if not configf.closed:
+            config.write(configf)
+            configf.close()
+        seen.close()
 
 main()

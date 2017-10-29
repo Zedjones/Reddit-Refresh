@@ -20,6 +20,7 @@ def get_results(sb, search, sort="new", flair=False):
     #have to use OrderedDict because Python dicts before 3.6
     #do not keep order that keys are added
     resultdict = OrderedDict()
+    urllib3.disable_warnings()
     sorts = ["new", "top", "relevance"] #three sorting options for Reddit search
     #properly format this for url construction
     if "/r/" not in sb:
