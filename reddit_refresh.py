@@ -50,9 +50,13 @@ def main():
         #create an entry for each device in the Devices section
         config['Devices'] = {}
         for i in range(len(devices_to_push)):
-            print(devices_to_push[i][0])
             config['Devices'][devices_to_push[i][1]] = \
                     devices_to_push[i][0]
+        #create empty dictionary
+        devices_to_push = {}
+        #read each entry in Devices and put it in the dictionary
+        for entry in config['Devices']:
+            devices_to_push[config['Devices'][entry]] = entry
     #if there is a Devices section
     else:
         #create empty dictionary
@@ -60,65 +64,71 @@ def main():
         #read each entry in Devices and put it in the dictionary
         for entry in config['Devices']:
             devices_to_push[config['Devices'][entry]] = entry
+    searches = []
     if('Searches' not in config):
-        search = input("Enter the subreddit to search and the search term\n" + \
+        print("\nHit enter to stop inputting queries")
+        search = input("\nEnter the subreddit to search and the search term\n" + \
                 "separated by a comma (Ex: mechmarket,Planck): ").split(",")
         config['Searches'] = {}
-        config['Searches'][search[0]] = search[1]
+        while(search[0] != ''):
+            config['Searches'][search[0].strip()] = search[1].strip()
+            searches.append(search)
+            search = input("\nEnter the subreddit to search and the search\n" \
+            + "term separated by a comma (Ex: mechmarket,Planck): ").split(",")
     else:
         for entry in config['Searches']:
             search = []
             search.append(entry)
             search.append(config['Searches'][entry])
-    #temporary search results test 
-    #TODO get query and subreddit, etc. from the user
-    search_results = get_results(search[0], search[1])
-    #create list to hold the previous results
-    previous_results = []
-    #if visited_sites is a file, open it for reading and writing
-    if os.path.isfile(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+            searches.append(search)
+    for search in searches:
+        search_results = get_results(search[0], search[1])
+        #create list to hold the previous results
+        previous_results = []
+        #if visited_sites is a file, open it for reading and writing
+        if os.path.isfile(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
             % (search[0], search[1] + "_visited_sites.txt")):
-        seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
-        % (search[0], search[1]) + "_visited_sites.txt", 'r+')
-        #for each url in the file
-        for line in seen:
-            #add it to the list
-            previous_results.append(line.strip())
-    #if it is not a file, create the file and open it for writing
-    else:
-        seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
-        % (search[0], search[1]) + "_visited_sites.txt", 'w')
-        #write each url to the file, close it, and reopen it for r+w
-        for key in search_results:
-            seen.write(key + "\n")
-        seen.close()
-        seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
-        % (search[0], search[1]) + "_visited_sites.txt", 'r+')
-    noMatches = True
-    #if there were any previous results
-    if(len(previous_results) > 0):
-        #only send a push if a result hasn't been seen before, and then 
-        #write the url to the file
-        for key in search_results:
-            if key not in previous_results:
-                send_a_push_link(devices_to_push, token, \
-                        key, search_results[key])
-                seen.write(key + "\n")
-            else:
-                noMatches = False
-        #if we haven't seen any of these urls before, we can simply erase
-        #the  file and start over
-        if noMatches:
-            seen.seek(0)
-            seen.truncate()
+            seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                % (search[0], search[1]) + "_visited_sites.txt", 'r+')
+            #for each url in the file
+            for line in seen:
+                #add it to the list
+                previous_results.append(line.strip())
+        #if it is not a file, create the file and open it for writing
+        else:
+            seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                % (search[0], search[1]) + "_visited_sites.txt", 'w')
+            #write each url to the file, close it, and reopen it for r+w
             for key in search_results:
                 seen.write(key + "\n")
-    #if there were no previous results, just send the first result
-    else:
-        for key in search_results:
-            send_a_push_link(devices_to_push, token, \
-                    key, search_results[key])
-            break
+            seen.close()
+            seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                % (search[0], search[1]) + "_visited_sites.txt", 'r+')
+        noMatches = True
+        #if there were any previous results
+        if(len(previous_results) > 0):
+            #only send a push if a result hasn't been seen before, and then 
+            #write the url to the file
+            for key in search_results:
+                if key not in previous_results:
+                    send_a_push_link(devices_to_push, token, \
+                            key, search_results[key])
+                    seen.write(key + "\n")
+                else:
+                    noMatches = False
+            #if we haven't seen any of these urls before, we can simply erase
+            #the  file and start over
+            if noMatches:
+                seen.seek(0)
+                seen.truncate()
+                for key in search_results:
+                    seen.write(key + "\n")
+        #if there were no previous results, just send the first result
+        else:
+            for key in search_results:
+                send_a_push_link(devices_to_push, token, \
+                        key, search_results[key])
+                break
     #close file as standard practice, and write config to file
     config.write(configf)
     seen.close()
