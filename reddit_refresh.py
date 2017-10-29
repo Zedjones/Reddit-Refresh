@@ -14,7 +14,9 @@ def main():
     try:
         home = str(Path.home())
     except:
-        home = os.path.expanduser("~")	
+        home = os.path.expanduser("~")
+    if not os.path.exists(home+"/.config"):
+        os.makedirs(home+"/.config")	
     if not os.path.exists(home+"/.config/reddit-refresh"):
         os.makedirs(home+"/.config/reddit-refresh")
     #open the config file for reading and writing if it exists, set firstRun to false
@@ -144,11 +146,11 @@ def main():
                     send_a_push_link(devices_to_push, token, \
                             key, search_results[key])
                     break
-        time.sleep(int(minutes)*60)
         #close file as standard practice, and write config to file
         if not configf.closed:
             config.write(configf)
             configf.close()
         seen.close()
+        time.sleep(int(minutes)*60)
 
 main()
