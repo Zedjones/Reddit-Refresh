@@ -11,19 +11,23 @@ def main():
     #assume that this is the first run
     firstrun = True
     #make the directory to hold the config if it doesn't exist
-    if not os.path.exists(str(Path.home())+"/.config/reddit-refresh"):
-        os.makedirs(str(Path.home())+"/.config/reddit-refresh")
+    try:
+        home = str(Path.home())
+    except:
+        home = os.path.expanduser("~")	
+    if not os.path.exists(home+"/.config/reddit-refresh"):
+        os.makedirs(home+"/.config/reddit-refresh")
     #open the config file for reading and writing if it exists, set firstRun to false
-    if os.path.isfile(str(Path.home())+"/.config/reddit-refresh/config"):
-        configf = open(str(Path.home())+"/.config/reddit-refresh/config", 'r+')
+    if os.path.isfile(home+"/.config/reddit-refresh/config"):
+        configf = open(home+"/.config/reddit-refresh/config", 'r+')
         firstrun = False
     #otherwise,  open a new config file for writing
     else:
-        configf = open(str(Path.home())+"/.config/reddit-refresh/config", 'w')
+        configf = open(home+"/.config/reddit-refresh/config", 'w')
     #create new config parser
     config = configparser.ConfigParser()
     #read the config file
-    config.read(str(Path.home())+"/.config/reddit-refresh/config")
+    config.read(home+"/.config/reddit-refresh/config")
     #if it's the first run or there is no User Info section 
     if(firstrun or "User Info" not in config):
         #get access token from user
@@ -97,9 +101,9 @@ def main():
             #create list to hold the previous results
             previous_results = []
             #if visited_sites is a file, open it for reading and writing
-            if os.path.isfile(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+            if os.path.isfile(home+"/.config/reddit-refresh/%s_%s" \
                 % (search[0], search[1] + "_visited_sites.txt")):
-                seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                seen = open(home+"/.config/reddit-refresh/%s_%s" \
                     % (search[0], search[1]) + "_visited_sites.txt", 'r+')
                 #for each url in the file
                 for line in seen:
@@ -107,13 +111,13 @@ def main():
                     previous_results.append(line.strip())
             #if it is not a file, create the file and open it for writing
             else:
-                seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                seen = open(home+"/.config/reddit-refresh/%s_%s" \
                     % (search[0], search[1]) + "_visited_sites.txt", 'w')
                 #write each url to the file, close it, and reopen it for r+w
                 for key in search_results:
                     seen.write(key + "\n")
                 seen.close()
-                seen = open(str(Path.home())+"/.config/reddit-refresh/%s_%s" \
+                seen = open(home+"/.config/reddit-refresh/%s_%s" \
                     % (search[0], search[1]) + "_visited_sites.txt", 'r+')
             noMatches = True
             #if there were any previous results
