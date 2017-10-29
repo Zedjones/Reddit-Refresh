@@ -83,8 +83,8 @@ def main():
     else:
         for entry in config['Searches']:
             search = []
-            search.append(entry)
-            search.append(config['Searches'][entry])
+            search.append(entry.strip())
+            search.append(config['Searches'][entry].strip())
             searches.append(search)
     if('Program Config' not in config):
         minutes = input("How often should the program check for new" \
