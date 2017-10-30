@@ -6,15 +6,20 @@ from subreddit_parser import get_results
 import configparser
 import time
 from reddit_refresh_utils import *
+import platform
 
 def main():
     #assume that this is the first run
     firstrun = True
     #make the directory to hold the config if it doesn't exist
-    try:
-        home = str(Path.home())
-    except:
-        home = os.path.expanduser("~")
+    if(platform.system() == "Windows"):
+        home = os.getcwd()
+    else:
+        try:
+            home = str(Path.home())
+        except:
+            home = os.path.expanduser("~")
+
     if not os.path.exists(home+"/.config"):
         os.makedirs(home+"/.config")	
     if not os.path.exists(home+"/.config/reddit-refresh"):
