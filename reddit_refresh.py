@@ -78,16 +78,20 @@ def main():
                 "separated by a comma (Ex: mechmarket,Planck): ").split(",")
         config['Searches'] = {}
         while(search[0] != ''):
-            config['Searches'][search[0].strip()] = search[1].strip()
+            if(search[0].strip() in config['Searches']):
+                config['Searches'][search[0].strip()] += ",%s" % search[1].strip()
+            else:
+                config['Searches'][search[0].strip()] = search[1].strip()
             searches.append(search)
             search = input("\nEnter the subreddit to search and the search\n" \
             + "term separated by a comma (Ex: mechmarket,Planck): ").split(",")
     else:
         for entry in config['Searches']:
-            search = []
-            search.append(entry.strip())
-            search.append(config['Searches'][entry].strip())
-            searches.append(search)
+            for term in config['Searches'][entry].split(','):
+                search = []
+                search.append(entry.strip())
+                search.append(term.strip())
+                searches.append(search)
     if('Program Config' not in config):
         minutes = input("How often should the program check for new" \
                + " results? (in minutes): ")
@@ -99,7 +103,7 @@ def main():
     while(1):
         print("checking results")
         for search in searches:
-            search_results = get_results(search[0], search[1])
+            search_results = get_results(search[0], search[1], "new")
             #create list to hold the previous results
             previous_results = []
             #if visited_sites is a file, open it for reading and writing
@@ -151,6 +155,6 @@ def main():
             config.write(configf)
             configf.close()
         seen.close()
-        time.sleep(int(minutes)*60)
+        time.sleep(float(minutes)*60)
 
 main()
