@@ -147,12 +147,21 @@ def main():
                     if key not in previous_results:
                         send_a_push_link(devices_to_push, token, \
                                 key, search_results[key])
-                        if(line <= 2):
+                        if(line == 1):
                             seen.seek(0)
                             temp = seen.readline()
                             seen.seek(0)
+                            seen.truncate()
                             seen.write(key + "\n")
-                            seen.write(temp + "\n")
+                            seen.write(temp)
+                            line += 1
+                        elif(line == 2):
+                            seen.seek(0)
+                            temp = seen.readline()
+                            seen.seek(0)
+                            seen.truncate()
+                            seen.write(temp)
+                            seen.write(key)
                             line += 1
                     else:
                         break
