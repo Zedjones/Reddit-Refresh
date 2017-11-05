@@ -113,9 +113,10 @@ def main():
             #create list to hold the previous results
             #if visited_sites is a file, open it for reading and writing
             if os.path.isfile(home+"/.config/reddit-refresh/%s_%s" \
-                % (search[0], search[1] + "_visited_sites.txt")):
+                % (search[0].strip(), search[1].strip() + "_visited_sites.txt")):
                 seen = open(home+"/.config/reddit-refresh/%s_%s" \
-                    % (search[0], search[1]) + "_visited_sites.txt", 'r+')
+                    % (search[0].strip(), search[1].strip()) + \
+                    "_visited_sites.txt", 'r+')
                 #for each url in the file
                 for line in seen:
                     #add it to the list
@@ -123,7 +124,8 @@ def main():
             #if it is not a file, create the file and open it for writing
             else:
                 seen = open(home+"/.config/reddit-refresh/%s_%s" \
-                    % (search[0], search[1]) + "_visited_sites.txt", 'w')
+                    % (search[0].strip(), search[1].strip()) + \
+                    "_visited_sites.txt", 'w')
                 #write each url to the file, close it, and reopen it for r+w
                 i = 0
                 for key in search_results:
@@ -133,7 +135,8 @@ def main():
                     	break
                 seen.close()
                 seen = open(home+"/.config/reddit-refresh/%s_%s" \
-                    % (search[0], search[1]) + "_visited_sites.txt", 'r+')
+                    % (search[0].strip(), search[1].strip()) + \
+                    "_visited_sites.txt", 'r+')
             noMatches = True
             #if there were any previous results
             if(len(previous_results) != 0):
