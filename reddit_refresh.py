@@ -143,17 +143,17 @@ def main():
                 #only send a push if a result hasn't been seen before, and then 
                 #write the url to the file
                 line = 1
-                seen.seek(0)
                 for key in search_results:
                     if key not in previous_results:
                         send_a_push_link(devices_to_push, token, \
                                 key, search_results[key])
-                        seen.write(key + "\n")
-                        seen.write(previous_results[0])
                         if(line == 2):
-                            seen.seek(0)
-                        else:
+                            seen.write(key + "\n")
                             line += 1
+                        if(line == 1):
+                            seen.seek(0)                            
+                            line += 1
+                            seen.write(key + "\n")
                     else:
                         break
             #if there were no previous results, just send the first result
