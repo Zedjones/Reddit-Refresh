@@ -11,7 +11,8 @@ import platform
 def main():
     #assume that this is the first run
     firstrun = True
-    #make the directory to hold the config if it doesn't exist
+    #if on Windows, keep config in a new folder within current working 
+    #directory
     if(platform.system() == "Windows"):
         home = os.getcwd()
     else:
@@ -19,7 +20,7 @@ def main():
             home = str(Path.home())
         except:
             home = os.path.expanduser("~")
-
+    #make the directory to hold the config if it doesn't exist
     if not os.path.exists(home+"/.config"):
         os.makedirs(home+"/.config")	
     if not os.path.exists(home+"/.config/reddit-refresh"):
@@ -76,48 +77,65 @@ def main():
         #read each entry in Devices and put it in the dictionary
         for entry in config['Devices']:
             devices_to_push[config['Devices'][entry]] = entry
+    #create list to hold searches
     searches = []
+    #is there is no Searches section in the config file
     if('Searches' not in config):
+        #get input for search terms and subreddits
         print("\nHit enter to stop inputting queries")
         search = input("\nEnter the subreddit to search and the search term\n" + \
                 "separated by a comma (Ex: mechmarket,Planck): ").split(",")
+        #create new section for searches
         config['Searches'] = {}
+        #while user is still inputting searches
         while(search[0] != ''):
+            #if the subreddit is already in the searches section
             if(search[0].strip() in config['Searches']):
+                #append the new term to the old
                 config['Searches'][search[0].strip()] += ",%s" % search[1].strip()
             else:
                 config['Searches'][search[0].strip()] = search[1].strip()
+            #append the search to the searches
             searches.append(search)
             search = input("\nEnter the subreddit to search and the search\n" \
             + "term separated by a comma (Ex: mechmarket,Planck): ").split(",")
     else:
+        #for each subreddit in the searches section
         for entry in config['Searches']:
+            #create a search for each term for the subreddit
             for term in config['Searches'][entry].split(','):
                 search = []
                 search.append(entry.strip())
                 search.append(term.strip())
                 searches.append(search)
+    #if there is no program config section
     if('Program Config' not in config):
+        #get the number of minutes to wait between each refresh 
         minutes = input("How often should the program check for new" \
                + " results? (in minutes): ")
         config['Program Config'] = {}
         config['Program Config']['refresh interval'] = minutes
+    #otherwise, read it and set minutes equal to it
     else:
         minutes = config['Program Config']['refresh interval']
     print("CTRL-C to exit program and stop checking results")
+    #while the user doesn't CTRL-C
     while(1):
         print("checking results")
+        #for each search
         for search in searches:
+            #get the results for the search from subreddit_parser
             search_results = get_results(search[0], search[1], "new")
+            #create a list to hold the previous results
             previous_results = []
-            #create list to hold the previous results
-            #if visited_sites is a file, open it for reading and writing
+            #if visited_sites_$SUBREDDIT$_$SEARCH$ is a file,
+            #open it for reading and writing
             if os.path.isfile(home+"/.config/reddit-refresh/%s_%s" \
                 % (search[0].strip(), search[1].strip() + "_visited_sites.txt")):
                 seen = open(home+"/.config/reddit-refresh/%s_%s" \
                     % (search[0].strip(), search[1].strip()) + \
                     "_visited_sites.txt", 'r+')
-                #for each url in the file
+                #for each url in the file (should only be two)
                 for line in seen:
                     #add it to the list
                     previous_results.append(line.strip())
@@ -126,13 +144,14 @@ def main():
                 seen = open(home+"/.config/reddit-refresh/%s_%s" \
                     % (search[0].strip(), search[1].strip()) + \
                     "_visited_sites.txt", 'w')
-                #write each url to the file, close it, and reopen it for r+w
+                #write first two urls to the file, close it, and reopen it for r+w
                 i = 0
                 for key in search_results:
                     seen.write(key + "\n")
                     i += 1
                     if(i == 2):
                     	break
+                #close the file, and reopen it for reading/writing
                 seen.close()
                 seen = open(home+"/.config/reddit-refresh/%s_%s" \
                     % (search[0].strip(), search[1].strip()) + \
@@ -140,28 +159,44 @@ def main():
             noMatches = True
             #if there were any previous results
             if(len(previous_results) != 0):
-                #only send a push if a result hasn't been seen before, and then 
-                #write the url to the file
                 line = 1
+                #for each url in the search results
                 for key in search_results:
+                    #if the url was not in the file
                     if key not in previous_results:
+                        #send a push with the url and title
                         send_a_push_link(devices_to_push, token, \
                                 key, search_results[key])
+                        #if this is the first new line 
                         if(line == 1):
+                            #seek to the beginning, and 
+                            #read the first line into a temporary variable
                             seen.seek(0)
                             temp = seen.readline()
+                            #seek to the beginning and truncate
                             seen.seek(0)
                             seen.truncate()
+                            #write the key first since it's the newest url,
+                            #and then the old url
                             seen.write(key + "\n")
                             seen.write(temp)
+                            #increment line
                             line += 1
+                        #if this is the second new line
                         elif(line == 2):
+                            #seek to the beginning, and
+                            #read the first line into a temporary variable
                             seen.seek(0)
                             temp = seen.readline()
+                            #seek to the beginning and truncate
                             seen.seek(0)
                             seen.truncate()
+                            #write the first line first, since this is the newest
+                            #url since it was first in search_results, then write
+                            #the new key
                             seen.write(temp)
                             seen.write(key)
+                            #increment line
                             line += 1
                     else:
                         break
@@ -175,6 +210,7 @@ def main():
         if not configf.closed:
             config.write(configf)
             configf.close()
+        #close the seen file, and wait for the provided amount of time
         seen.close()
         time.sleep(float(minutes)*60)
 
