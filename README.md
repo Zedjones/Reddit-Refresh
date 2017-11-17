@@ -19,3 +19,24 @@ Getting news updates on a certain topic from /r/news, checking for a keycap set 
 3. You're good to go! Just run `./reddit-refresh` or `python3 reddit-refresh.py`
 
 ## Configuration
+
+Upon first run, you will be prompted with options to configure Pushbullet pushes and searches. However, you can manually edit the file, located at  `~/.config/reddit-refresh/config` (on Linux) or `INSTALL_FOLDER/.config/config`, any time. 
+
+```sh
+[User Info]
+token = API_TOKEN #your api token goes here
+
+[Devices]
+#this is your device's name and unique id for Pushbullet
+#can have as many entries as needed
+DEVICE_NAME = DEVICE_ID 
+
+[Searches]
+#subreddit followed by search terms separated by commas
+#can have as many entries as needed
+SUBREDDIT = TERM_1,TERM_2
+
+[Program Config]
+#how often to check for new search results
+refresh interval = TIME_IN_MINUTES
+```
