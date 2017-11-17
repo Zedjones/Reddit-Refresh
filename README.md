@@ -6,4 +6,16 @@
 Example use cases:
 Getting news updates on a certain topic from /r/news, checking for a keycap set on /r/mechmarket, or checking for a certain game on /r/gamedeals. 
 
+## Table of Contents
 
+<!-- vim-markdown-toc GFM -->
+* [Installation](#installation)
+* [Configuration](#configuration)
+
+## Installation
+
+1. Clone the repo into whatever folder you want to use.
+2. Run `python3 setup.py develop` to make sure all dependencies are installed.
+3. You're good to go! Just run `./reddit-refresh` or `python3 reddit-refresh.py`
+
+## Configuration
