@@ -20,7 +20,7 @@ Getting news updates on a certain topic from /r/news, checking for a keycap set 
 
 ## Configuration
 
-Upon first run, you will be prompted with options to configure Pushbullet pushes and searches. However, you can manually edit the file, located at  `~/.config/reddit-refresh/config` (on Linux) or `INSTALL_FOLDER/.config/config`, any time. 
+Upon first run, you will be prompted with options to configure Pushbullet pushes and searches. However, you can manually edit the file, located at  `~/.config/reddit-refresh/config` (on Linux) or `INSTALL_FOLDER/.config/reddit-refresh/config`, any time. 
 
 ```sh
 [User Info]
