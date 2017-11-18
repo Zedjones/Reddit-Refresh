@@ -11,6 +11,7 @@ Getting news updates on a certain topic from /r/news, checking for a keycap set 
 <!-- vim-markdown-toc GFM -->
 * [Installation](#installation)
 * [Configuration](#configuration)
+* [Future Features](#future-features)
 
 ## Installation
 
@@ -40,3 +41,10 @@ SUBREDDIT = TERM_1,TERM_2
 #how often to check for new search results
 refresh interval = TIME_IN_MINUTES
 ```
+
+## Future Features
+
+* Filter based on flair
+* Send to all devices as one push
+* Add option to append flair to title
+* Add option to append date and time of post to title
