@@ -16,7 +16,7 @@ Getting news updates on a certain topic from /r/news, checking for a keycap set 
 
 1. Clone the repo into whatever folder you want to use.
 2. Run `python3 setup.py develop` to make sure all dependencies are installed.
-3. You're good to go! Just run `./reddit_refresh` or `python3 reddit_refresh.py`
+3. You're good to go! Just run `./reddit_refresh.py` or `python3 reddit_refresh.py`
 
 ## Configuration
 
