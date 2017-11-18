@@ -18,8 +18,8 @@ def main():
             home = str(Path.home())
         except:
             home = os.path.expanduser("~")
-        else:
-            home = os.getcwd()
+    else:
+        home = os.getcwd()
     #make the directory to hold the config if it doesn't exist
     if not os.path.exists(home+"/.config"):
         os.makedirs(home+"/.config")	
