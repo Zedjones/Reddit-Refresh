@@ -13,13 +13,13 @@ def main():
     firstrun = True
     #if on Windows, keep config in a new folder within current working 
     #directory
-    if(platform.system() == "Windows"):
-        home = os.getcwd()
-    else:
+    if(platform.system() == "Linux"):
         try:
             home = str(Path.home())
         except:
             home = os.path.expanduser("~")
+        else:
+            home = os.getcwd()
     #make the directory to hold the config if it doesn't exist
     if not os.path.exists(home+"/.config"):
         os.makedirs(home+"/.config")	
